@@ -1,0 +1,2 @@
+swagger_scan_folder: modules/custom
+swagger_scan_output: sites/default/files/swagger

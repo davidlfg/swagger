@@ -1,0 +1,6 @@
+swagger.admin:
+  title: 'Swagger'
+  description: 'Swagger Integration D8'
+  parent: system.admin_config_services
+  route_name: swagger.admin
+  weight: 100

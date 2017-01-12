@@ -1,0 +1,11 @@
+{
+  "name": "drupal/swagger",
+  "type": "drupal-module",
+  "description": "Implements ",
+  "keywords": ["Swagger", "Annotations"],
+  "type": "drupal-module",
+  "require": {
+  	"zircote/swagger-php": "*",
+  	"swagger-api/swagger-ui": "2.2.*"
+  }
+}

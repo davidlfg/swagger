@@ -1,0 +1,23 @@
+swagger.admin:
+  path: '/admin/structure/swagger'
+  defaults:
+    _form: '\Drupal\swagger\Form\SwaggerBatchForm'
+    _title: 'Swagger'
+  requirements:
+    _permission: 'administer site configuration'
+
+swagger.batch:
+  path: '/swagger-batch'
+  defaults:
+    _controller: '\Drupal\swagger\Controller\SwaggerBatchController::runBatch'
+    _title: 'Swagger Batch'
+  requirements:
+    _permission: 'administer content'
+
+swagger.ui:
+  path: '/swagger-ui'
+  defaults:
+    _controller: '\Drupal\swagger\Controller\SwaggerBatchController::runBatch'
+    _title: 'Swagger Api UI'
+  requirements:
+    _permission: 'administer content'
