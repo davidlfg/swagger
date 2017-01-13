@@ -1,7 +1,10 @@
-HOW TO INSTALL
+Requirements
 --------------
 
-USAGE
+clone https://github.com/swagger-api/swagger-ui.git and move the "swagger-ui" folder to /libraries/
+Check the path file: /libraries/swagger-ui/dist/swagger-ui.js:
+
+Usage
 -----
 
 Configure the composer.json file and after to do it, you could execute composer install for download the swagger module dependences.

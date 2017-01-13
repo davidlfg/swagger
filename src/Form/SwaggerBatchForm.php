@@ -65,14 +65,17 @@ class SwaggerBatchForm extends ConfigFormBase {
       $url->setOptions($link_options);
       $link = \Drupal::l(t('/swagger.json'), $url);
       $form['swagger_scan_output']['#field_suffix'] = $link;
-      $form['swagger_ui'] = array(
-        '#title' => $this->t('Swagger UI'),
-        '#type' => 'link',
-        '#url' => Url::fromUri(file_create_url('swagger-ui/dist')),
-        '#attributes' => array(
-          'target' => array('_blank'),
-        ),
-      );
+      //swagger ui link
+      if (drupal_verify_install_file('libraries/swagger-ui/dist/swagger-ui.js', FILE_EXIST)) {
+        $form['swagger_ui'] = array(
+          '#title' => $this->t('Swagger UI'),
+          '#type' => 'link',
+          '#url' => Url::fromRoute('swagger.swaggerui'),
+        );
+      } else {
+         drupal_set_message($this->t('clone https://github.com/swagger-api/swagger-ui.git and move the "swagger-ui" folder to /libraries/'), 'warning', FALSE);
+      }
+      
     }
     return $form;
   }

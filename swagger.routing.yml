@@ -14,10 +14,11 @@ swagger.batch:
   requirements:
     _permission: 'administer content'
 
-swagger.ui:
-  path: '/swagger-ui'
+swagger.swaggerui:
+  path: '/swagger/swagger-ui'
   defaults:
-    _controller: '\Drupal\swagger\Controller\SwaggerBatchController::runBatch'
-    _title: 'Swagger Api UI'
+    _controller: '\Drupal\swagger\Controller\SwaggerController::swaggerUiPage'
   requirements:
-    _permission: 'administer content'
+    _access: 'TRUE'
+    _permission: 'administer site configuration'
+
