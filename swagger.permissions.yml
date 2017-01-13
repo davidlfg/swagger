@@ -1,0 +1,4 @@
+swagger ui:
+  title: 'Access Swagger-UI'
+  description: 'View of Swagger-UI page'
+  restrict access: TRUE
