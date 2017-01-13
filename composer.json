@@ -5,7 +5,6 @@
   "keywords": ["Swagger", "Annotations"],
   "type": "drupal-module",
   "require": {
-  	"zircote/swagger-php": "*",
-  	"swagger-api/swagger-ui": "2.2.*"
+  	"zircote/swagger-php": "*"
   }
 }
