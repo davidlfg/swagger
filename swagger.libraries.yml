@@ -1,0 +1,35 @@
+swagger_ui:
+  js:
+    /libraries/swagger-ui/dist/lib/object-assign-pollyfill.js: {}
+    /libraries/swagger-ui/dist/lib/jquery.slideto.min.js: {}
+    /libraries/swagger-ui/dist/lib/jquery.wiggle.min.js: {}
+    /libraries/swagger-ui/dist/lib/jquery.ba-bbq.min.js: {}
+    /libraries/swagger-ui/dist/lib/handlebars-4.0.5.js: {}
+    /libraries/swagger-ui/dist/lib/lodash.min.js: {}
+    /libraries/swagger-ui/dist/lib/backbone-min.js: {}
+    /libraries/swagger-ui/dist/swagger-ui.js: {}
+    /libraries/swagger-ui/dist/lib/highlight.9.1.0.pack.js: {}
+    /libraries/swagger-ui/dist/lib/highlight.9.1.0.pack_extended.js: {}
+    /libraries/swagger-ui/dist/lib/jsoneditor.min.js: {}
+    /libraries/swagger-ui/dist/lib/marked.js: {}
+    /libraries/swagger-ui/dist/lib/swagger-oauth.js: {}
+  css:
+    theme:
+      /libraries/swagger-ui/dist/css/typography.css: {}
+      /libraries/swagger-ui/dist/css/reset.css: {}
+      /libraries/swagger-ui/dist/css/screen.css: {}
+      /libraries/swagger-ui/dist/css/reset.css: { media: print }
+      /libraries/swagger-ui/dist/css/print.css: { media: print }
+  dependencies:
+    - core/jquery
+
+swagger_ui_integration:
+  js:
+    js/swagger.js: {}
+  css:
+    theme:
+      css/swagger-ui.css: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/drupalSettings

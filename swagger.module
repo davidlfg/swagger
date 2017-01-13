@@ -19,3 +19,14 @@ function swagger_help($route_name, RouteMatchInterface $route_match) {
       return $output;
   }
 }
+
+/**
+ * Implements hook_theme().
+ */
+function swagger_theme() {
+  return array(
+    'swagger_ui' => array(
+      'render element' => 'elements',
+    ),
+  );
+}
