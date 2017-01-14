@@ -19,6 +19,5 @@ swagger.swaggerui:
   defaults:
     _controller: '\Drupal\swagger\Controller\SwaggerController::swaggerUiPage'
   requirements:
-    _access: 'TRUE'
-    _permission: 'administer site configuration'
+    _permission: 'swagger ui'
 
