@@ -4,7 +4,31 @@ namespace Drupal\swagger\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Url;
+use Symfony\Component\Routing\Route;
 
+define("API_HOST", \Drupal::request()->getHost());
+
+/**
+ * @SWG\Swagger(
+ *   host=API_HOST,
+ *   schemes={"http"},
+ *   @SWG\Info(
+ *     title="Learning Center Services",
+ *     description="Learning Center Services description",
+ *     termsOfService="URL The Terms of Service for the API.",
+ *     version="1.0.0",
+ *     @SWG\Contact(
+ *       name="Api support",
+ *       url="http://www.swagger.io/support",
+ *       email="davidlfg@gmail.com"
+ *     ),
+ *     @SWG\License(
+ *       name="Apache 2.0",
+ *       url="http://www.apache.org/licenses/LICENSE-2.0.html",
+ *     )
+ *   )
+ * )
+ */
 
 /**
  * Controller for the Swagger UI page callbacks
