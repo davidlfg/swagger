@@ -5,35 +5,44 @@ namespace Drupal\swagger\Controller;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Url;
 use Symfony\Component\Routing\Route;
-
-define("API_HOST", \Drupal::request()->getHost());
-
-/**
- * @SWG\Swagger(
- *   host=API_HOST,
- *   schemes={"http"},
- *   @SWG\Info(
- *     title="Learning Center Services",
- *     description="Learning Center Services description",
- *     termsOfService="URL The Terms of Service for the API.",
- *     version="1.0.0",
- *     @SWG\Contact(
- *       name="Api support",
- *       url="http://www.swagger.io/support",
- *       email="davidlfg@gmail.com"
- *     ),
- *     @SWG\License(
- *       name="Apache 2.0",
- *       url="http://www.apache.org/licenses/LICENSE-2.0.html",
- *     )
- *   )
- * )
- */
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
  * Controller for the Swagger UI page callbacks
  */
 class SwaggerController extends ControllerBase {
+  
+  /**
+   * Output Swagger compatible API spec.
+   */
+  public function swaggerAPI() {
+    $spec = [
+      'swagger' => "2.0",
+      'schemes' => ['http'],
+      'info' => $this->getInfo(),
+      'host' => \Drupal::request()->getHost(),
+      'basePath' => \Drupal::request()->getBasePath(),
+
+    ];
+    $response = new JsonResponse($spec);
+    return $response;
+
+  }
+
+  /**
+   * Creates the 'info' portion of the API.
+   *
+   * @return array
+   *   The info elements.
+   */
+  protected function getInfo() {
+    $site_name = $this->config('system.site')->get('name');
+    return [
+      'description' => 'Create configuration field',
+      'title' => $this->t('@site - API', ['@site' => $site_name]),
+    ];
+  }
+
 
   /**
    * The Swagger UI page.

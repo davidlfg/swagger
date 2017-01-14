@@ -21,3 +21,11 @@ swagger.swaggerui:
   requirements:
     _permission: 'swagger ui'
 
+swagger.swagger:
+  path: '/swagger/swagger-spec'
+  defaults:
+    _controller: '\Drupal\swagger\Controller\SwaggerController::swaggerAPI'
+  methods: [GET]
+  requirements:
+    _access: 'TRUE'
+    _format: 'json'
