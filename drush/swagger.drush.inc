@@ -7,6 +7,12 @@
 
 use Drupal\swagger\Controller;
 use Drupal\Core\Url;
+use Swagger\Analyser;
+use Swagger\Context;
+use Swagger\StaticAnalyser;
+use Swagger\Annotations\Info;
+use Swagger\Processors\InheritProperties;
+use Swagger\Processors\MergeIntoSwagger;
 
 /**
  * Implements hook_drush_command().
@@ -58,8 +64,18 @@ function _swagger_scan_and_prepare($scan_folder, $file_path, $site_uri) {
   }
   //Checking the swagger format files
   _swagger_check_json_format();
-  header('Content-Type: application/json');
-  $swagger = \Swagger\scan($scan_folder);
+  //GET custom swagger processor
+  $url = $site_uri . '/' . Url::fromRoute('swagger.swagger')->getInternalPath() . '?_format=json';
+  $info_swagger = file_get_contents($url);
+  $analyser = new StaticAnalyser();
+  $analysis = $analyser->fromFile($file_path);
+  $analysis->process([
+      new MergeIntoSwagger()
+  ]);
+  $analysis->swagger->info = new Info(['title' => 'tmp', 'version' => '1.0']);
+  $analysis->validate();
+  $swagger = \Swagger\scan($scan_folder, array('analysis' => $analysis));
+  
   $methods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch'];
   $counter = 0;
 
@@ -75,11 +91,9 @@ function _swagger_scan_and_prepare($scan_folder, $file_path, $site_uri) {
   drush_print('----------------------'.  str_repeat('-', strlen($counter)));
   drush_print($counter.' operations documented');
   drush_print('----------------------'.  str_repeat('-', strlen($counter)));
-  //header swagger
-  $url = $site_uri . '/' . Url::fromRoute('swagger.swagger')->getInternalPath() . '?_format=json';
-  $header_swagger = file_get_contents($url);
+  
   //merge base swagger annotations and custom swagger annotations
-  $swagger = json_encode(array_merge(json_decode($header_swagger, true),json_decode($swagger, true)), JSON_PRETTY_PRINT);
+  $swagger = json_encode(array_merge(json_decode($info_swagger, true),json_decode($swagger, true)), JSON_PRETTY_PRINT);
   return $swagger;
 }
 
