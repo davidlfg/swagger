@@ -20,8 +20,8 @@ function swagger_help($route_name, RouteMatchInterface $route_match) {
   switch ($route_name) {
     case 'help.page.swagger':
       $output = '';
-      $output .= '<h3>' . t('About') . '</h3>';
-      $output .= '<p>' . t('Details about swagger') . '</p>';
+      $output .= '<h3>' . t('About Swagger') . '</h3>';
+      $output .= '<p>' . t('Generate interactive Swagger documentation for your RESTful API using doctrine annotations.') . '</p>';
       return $output;
   }
 }
