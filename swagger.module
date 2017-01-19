@@ -5,6 +5,12 @@
  * Swagger module.
  */
 
+use Drupal\Core\Url;
+use Swagger\Analyser;
+use Swagger\StaticAnalyser;
+use Swagger\Annotations\Info;
+use Swagger\Processors\InheritProperties;
+use Swagger\Processors\MergeIntoSwagger;
 use Drupal\Core\Routing\RouteMatchInterface;
 
 /**
@@ -29,4 +35,97 @@ function swagger_theme() {
       'render element' => 'elements',
     ),
   );
+}
+
+/**
+ * Function _swagger_scan_and_prepare()
+ */
+function _swagger_scan_and_prepare($scan_folder, $file_path, $base_root, &$output_swagger_message, $source) {
+  //prepare directory file
+  if (!file_prepare_directory($file_path, FILE_CREATE_DIRECTORY)) {
+    $message = t("You don't have permission in the directory: ") . $file_path;
+    \Drupal::logger('my_module')->error($message);
+    exit();
+  }
+  //Checking the swagger format files
+  _swagger_check_json_format();
+  //GET custom swagger processor
+  $url = $base_root . '/' . Url::fromRoute('swagger.swagger')->getInternalPath() . '?_format=json';
+  $info_swagger = file_get_contents($url);
+  $analyser = new StaticAnalyser();
+  $analysis = $analyser->fromFile($file_path);
+  $analysis->process([
+      new MergeIntoSwagger()
+  ]);
+  $analysis->swagger->info = new Info(['title' => 'tmp', 'version' => '1.0']);
+  $analysis->validate();
+  $swagger = \Swagger\scan($scan_folder, array('analysis' => $analysis));
+  
+  $methods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch'];
+  $counter = 0;
+
+  // Output report
+  foreach ($swagger->paths as $path) {
+    foreach ($path as $method => $operation) {
+      if ($operation !== null && in_array($method, $methods)) {
+        $output_swagger_message[] = str_pad($method, 7, ' ', STR_PAD_LEFT) . ' ' . $path->path;
+        $counter++;
+      }
+    }
+  }
+  $output_swagger_message[] = $counter . t(' OPERATIONS DOCUMENTED.');
+  if ($counter == 0) {
+    drupal_set_message(t("Your code don't have annotations. Could you try to change the Scan folder path"), 'warning');
+  }
+  
+  //merge base swagger annotations and custom swagger annotations
+  $swagger = json_encode(array_merge(json_decode($info_swagger, true),json_decode($swagger, true)), JSON_PRETTY_PRINT);
+  return $swagger;
+}
+
+/**
+ * Function _swagger_check_json_format().
+ *  
+ * Checking the swagger format files
+ */
+function _swagger_check_json_format() {
+  $errorTypes = [
+    E_ERROR => 'ERROR',
+    E_WARNING => 'WARNING',
+    E_PARSE => 'PARSE',
+    E_NOTICE => 'NOTICE',
+    E_CORE_ERROR => 'CORE_ERROR',
+    E_CORE_WARNING => 'CORE_WARNING',
+    E_COMPILE_ERROR => 'COMPILE_ERROR',
+    E_COMPILE_WARNING => 'COMPILE_WARNING',
+    E_USER_ERROR => 'ERROR',
+    E_USER_WARNING => 'WARNING',
+    E_USER_NOTICE => 'NOTICE',
+    E_STRICT => 'STRICT',
+    E_RECOVERABLE_ERROR => 'RECOVERABLE_ERROR',
+    E_DEPRECATED => 'DEPRECATED',
+    E_USER_DEPRECATED => 'DEPRECATED'
+  ];
+  set_error_handler(function ($errno, $errstr, $file, $line) use ($errorTypes) {
+    if (!(error_reporting() & $errno)) {
+      return; // This error code is not included in error_reporting
+    }
+    $type = array_key_exists($errno, $errorTypes) ? $errorTypes[$errno] : 'ERROR';
+    \Drupal::logger('my_module')->error('[' . $type . '] '.$errstr .' in '.$file.' on line '.$line);
+    if ($type === 'ERROR') {
+      exit($errno);
+    }
+  });
+  set_exception_handler(function ($exception) {
+    \Drupal::logger('my_module')->error('[EXCEPTION] '.$exception->getMessage() .' in '.$exception->getFile().' on line '.$exception->getLine());
+    exit($exception->getCode() ?: 1);
+  });
+  \Swagger\Logger::getInstance()->log = function ($entry, $type) {
+    $type = $type === E_USER_NOTICE ? 'INFO' : 'WARN';
+    if ($entry instanceof Exception) {
+      $entry = $entry->getMessage();
+    }
+    drupal_set_message(t('---  SWAGGER WARNING ---'), 'error');
+    drupal_set_message('[' . $type . '] ' . $entry . PHP_EOL, 'error');
+  };
 }
