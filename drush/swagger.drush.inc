@@ -38,12 +38,10 @@ function drush_swagger_scan($site_uri = NULL) {
   $scan_folder = './' . $config->get('swagger_scan_folder');
   $file_path = './' . $config->get('swagger_scan_output');
   $json_file = $file_path . '/swagger.json';
-  $swagger = _swagger_scan_and_prepare($scan_folder, $file_path, $site_uri, $output_swagger_message, 'drush');
-  //save
-  $is_write = file_put_contents($json_file, $swagger);
+  _swagger_scan_and_save($site_uri, $output_swagger_message);
   
   foreach ($output_swagger_message as $line_message) {
    drupal_set_message($line_message);
   }
-  drupal_set_message(t('Written to: ') . realpath($json_file));
+  
 }
