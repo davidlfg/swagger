@@ -6,12 +6,12 @@
  */
 
 use Drupal\Core\Url;
-use Swagger\Analyser;
-use Swagger\StaticAnalyser;
-use Swagger\Annotations\Info;
-use Swagger\Processors\InheritProperties;
-use Swagger\Processors\MergeIntoSwagger;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Symfony\Component\Routing\Route;
+use Swagger\Analysis;
+use Swagger\Annotations\Info;
+use Swagger\Annotations\Swagger;
+use Swagger\Processors\MergeIntoSwagger;
 
 /**
  * Implements hook_help().
@@ -38,32 +38,58 @@ function swagger_theme() {
 }
 
 /**
- * Function _swagger_scan_and_prepare()
+ * Function _swagger_scan_and_save()
  */
-function _swagger_scan_and_prepare($scan_folder, $file_path, $base_root, &$output_swagger_message, $source) {
+function _swagger_scan_and_save($base_url, &$output_swagger_message) {
+  //get drupal configurations
+  $config = \Drupal::config('swagger.settings');
+  $scan_folder = './' . $config->get('swagger_scan_folder');
+  $file_path = './' . $config->get('swagger_scan_output');
+  $json_file = $file_path . '/swagger.json';
   //prepare directory file
   if (!file_prepare_directory($file_path, FILE_CREATE_DIRECTORY)) {
     $message = t("You don't have permission in the directory: ") . $file_path;
+    drupal_set_message(t('Written to: '), 'status');
     \Drupal::logger('my_module')->error($message);
     exit();
   }
+  //Prepare the basic structure  
+  $analysis = _swagger_prepare_base($base_url);
+  $swagger = \Swagger\scan($scan_folder, array('analysis' => $analysis));
+  // Output report
+  _swagger_output_report($swagger, $output_swagger_message);
+  //save fix
+  if (file_put_contents($json_file, $swagger)) {
+    drupal_set_message(t('Written to: ') . realpath($json_file), 'status');
+  }
+}
+
+/**
+ * Function _swagger_prepare_base()
+ * 
+ * @return $analysis new Analysis()
+ */
+function _swagger_prepare_base($base_url) {
   //Checking the swagger format files
   _swagger_check_json_format();
-  //GET custom swagger processor
-  $url = $base_root . '/' . Url::fromRoute('swagger.swagger')->getInternalPath() . '?_format=json';
-  $info_swagger = file_get_contents($url);
-  $analyser = new StaticAnalyser();
-  $analysis = $analyser->fromFile($file_path);
+  //scan custom swagger processor
+  $swagger_info_object = _swagger_info_object();
+  //Get object swagger
+  $swagger = new Swagger(_swagger_swagger_object($swagger_info_object, $base_url));
+  $analysis = new Analysis([$swagger]);
   $analysis->process([
-      new MergeIntoSwagger()
+    new MergeIntoSwagger()
   ]);
-  $analysis->swagger->info = new Info(['title' => 'tmp', 'version' => '1.0']);
   $analysis->validate();
-  $swagger = \Swagger\scan($scan_folder, array('analysis' => $analysis));
-  
+  return $analysis;
+}
+
+/**
+ * Function _swagger_output_report()
+ */
+function _swagger_output_report($swagger, &$output_swagger_message) {
   $methods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch'];
   $counter = 0;
-
   // Output report
   foreach ($swagger->paths as $path) {
     foreach ($path as $method => $operation) {
@@ -77,9 +103,6 @@ function _swagger_scan_and_prepare($scan_folder, $file_path, $base_root, &$outpu
   if ($counter == 0) {
     drupal_set_message(t("Your code don't have annotations. Could you try to change the Scan folder path"), 'warning');
   }
-  
-  //merge base swagger annotations and custom swagger annotations
-  $swagger = json_encode(array_merge(json_decode($info_swagger, true),json_decode($swagger, true)), JSON_PRETTY_PRINT);
   return $swagger;
 }
 
@@ -128,4 +151,46 @@ function _swagger_check_json_format() {
     drupal_set_message(t('---  SWAGGER WARNING ---'), 'error');
     drupal_set_message('[' . $type . '] ' . $entry . PHP_EOL, 'error');
   };
+}
+
+/**
+ * Function _swagger_info_object().
+ * 
+ * @return Info Object
+ */
+function _swagger_info_object() {
+  $config = \Drupal::config('system.site');
+  $site_name = $config->get('name');
+  return [
+    "title" => $site_name,
+    "description" => "This is a sample server Petstore server.",
+    "termsOfService" => "http://swagger.io/terms/",
+    "contact" => [
+      "name" => "API Support",
+      "url" => "http://www.swagger.io/support",
+      "email" => "support@swagger.io"
+    ],
+    "license" => [
+      "name" => "Apache 2.0",
+      "url" => "http://www.apache.org/licenses/LICENSE-2.0.html"
+    ],
+    "version" => "1.0"
+  ];
+}
+
+/**
+ * Function _swagger_swagger_object().
+ * 
+ * @return Info Object
+ */
+function _swagger_swagger_object($swagger_info_object, $base_url) {
+  return [
+    'swagger' => "2.0",
+    'info' => new Info($swagger_info_object),
+    'host' => preg_replace('/^http(s)?:\/\//i', '', $base_url),
+    'basePath' => \Drupal::request()->getBasePath(),
+    'schemes' => ['http', 'https'],
+    'consumes' => ['application/json'],
+    'produces' => ['application/json']
+  ];
 }
