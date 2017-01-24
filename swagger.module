@@ -159,38 +159,78 @@ function _swagger_check_json_format() {
  * @return Info Object
  */
 function _swagger_info_object() {
-  $config = \Drupal::config('system.site');
-  $site_name = $config->get('name');
-  return [
-    "title" => $site_name,
-    "description" => "This is a sample server Petstore server.",
-    "termsOfService" => "http://swagger.io/terms/",
-    "contact" => [
-      "name" => "API Support",
-      "url" => "http://www.swagger.io/support",
-      "email" => "support@swagger.io"
-    ],
-    "license" => [
-      "name" => "Apache 2.0",
-      "url" => "http://www.apache.org/licenses/LICENSE-2.0.html"
-    ],
-    "version" => "1.0"
+  $config = \Drupal::config('swagger.settings');
+  $info = [
+    "title" => $config->get('swagger_info_title'),
+    "description" => $config->get('swagger_info_description'),
+    "termsOfService" => $config->get('swagger_info_terms_service'),
+    "version" => $config->get('swagger_info_version')
   ];
+  if ($config->get('contact_needs')) {
+    $info["contact"] = [
+      "name" => $config->get('swagger_info_contact_name'),
+      "url" => $config->get('swagger_info_contact_url'),
+      "email" => $config->get('swagger_info_contact_email'),
+    ];
+  }
+  if ($config->get('license_needs')) {
+    $info["license"] = [
+      "name" => $config->get('swagger_info_license_name'),
+      "url" => $config->get('swagger_info_license_url'),
+    ];
+  }
+  return $info;
 }
 
 /**
  * Function _swagger_swagger_object().
- * 
+ *
  * @return Info Object
  */
 function _swagger_swagger_object($swagger_info_object, $base_url) {
+  $config = \Drupal::config('swagger.settings');
   return [
-    'swagger' => "2.0",
+    'swagger' => $config->get('swagger_swagger_version'),
     'info' => new Info($swagger_info_object),
     'host' => preg_replace('/^http(s)?:\/\//i', '', $base_url),
     'basePath' => \Drupal::request()->getBasePath(),
-    'schemes' => ['http', 'https'],
-    'consumes' => ['application/json'],
-    'produces' => ['application/json']
+    'schemes' => $config->get('swagger_swagger_schemes'),
+    'consumes' => $config->get('swagger_swagger_consumes'),
+    'produces' => $config->get('swagger_swagger_produces'),
+  ];
+}
+
+/**
+ * Function getTranferProtocol().
+ *
+ * @return List of tranfer Protocol
+ */
+function getTranferProtocol($key = NULL) {
+  return [
+    'http' => 'http',
+    'https' => 'https',
+    'ws' => 'ws',
+    'wss' => 'wss'
+  ];
+}
+
+/**
+ * Function getMineTypeDefinitions().
+ * 
+ * @return List of mine type definitions
+ */
+function getMineTypeDefinitions() {
+  return [
+    'text/plain; charset=utf-8' => 'text/plain; charset=utf-8',
+    'application/json' => 'application/json',
+    'application/xml' => 'application/xml',
+    'application/vnd.github+json' => 'application/vnd.github+json',
+    'application/vnd.github.v3+json' => 'application/vnd.github.v3+json',
+    'application/vnd.github.v3.raw+json' => 'application/vnd.github.v3.raw+json',
+    'application/vnd.github.v3.text+json' => 'application/vnd.github.v3.text+json',
+    'application/vnd.github.v3.html+json' => 'application/vnd.github.v3.text+json',
+    'application/vnd.github.v3.full+json' => 'application/vnd.github.v3.full+json',
+    'application/vnd.github.v3.diff' => 'application/vnd.github.v3.diff',
+    'application/vnd.github.v3.patch' => 'application/vnd.github.v3.patch'
   ];
 }

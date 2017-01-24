@@ -1,8 +1,16 @@
-swagger.admin:
-  path: '/admin/structure/swagger'
+swagger_scan.admin:
+  path: '/admin/structure/swagger-scan'
   defaults:
     _form: '\Drupal\swagger\Form\SwaggerBatchForm'
-    _title: 'Swagger'
+    _title: 'Swagger - Scan code'
+  requirements:
+    _permission: 'administer site configuration'
+
+swagger_basic_documentation.admin:
+  path: '/admin/structure/swagger-basic-documentation'
+  defaults:
+    _form: '\Drupal\swagger\Form\SwaggerBasicDocumentationForm'
+    _title: 'Swagger - Basic documentation'
   requirements:
     _permission: 'administer site configuration'
 
@@ -20,12 +28,3 @@ swagger.swaggerui:
     _controller: '\Drupal\swagger\Controller\SwaggerController::swaggerUiPage'
   requirements:
     _permission: 'swagger ui'
-
-swagger.swagger:
-  path: '/swagger/swagger-spec'
-  defaults:
-    _controller: '\Drupal\swagger\Controller\SwaggerController::swaggerAPI'
-  methods: [GET]
-  requirements:
-    _access: 'TRUE'
-    _format: 'json'

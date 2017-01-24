@@ -32,9 +32,9 @@ class SwaggerBatchForm extends ConfigFormBase {
       '#title' => $this->t('Scan folder'),
       '#description' => $this->t('A local folder system path where swagger will scan the code. Example: modules/custom'),
       '#attributes' => array(
-          'placeholder' => $this->t('modules/custom'),
-          'autofocus' => TRUE,
-        ),
+        'placeholder' => $this->t('modules/custom'),
+        'autofocus' => TRUE,
+      ),
       '#default_value' => $config->get('swagger_scan_folder') ?: 'modules/custom',
       '#required' => TRUE,
     );

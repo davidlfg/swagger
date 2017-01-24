@@ -19,7 +19,7 @@ class SwaggerBatchController {
     );
 
     batch_set($batch);
-    $path = \Drupal::service('url_generator')->getPathFromRoute('swagger.admin');
+    $path = \Drupal::service('url_generator')->getPathFromRoute('swagger_scan.admin');
     return batch_process($path);
   }
 }
