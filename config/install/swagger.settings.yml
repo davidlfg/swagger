@@ -1,2 +1,24 @@
 swagger_scan_folder: modules/custom
 swagger_scan_output: sites/default/files/swagger
+swagger_swagger_version: '2.0'
+swagger_swagger_base_path: /
+swagger_swagger_schemes:
+  - 'http'
+  - 'https'
+swagger_swagger_consumes:
+  - 'text/plain; charset=utf-8'
+  - 'application/json'
+swagger_swagger_produces:
+  - 'text/plain; charset=utf-8'
+  - 'application/json'
+swagger_info_title: CareAdvantage.jnj.com
+swagger_info_version: '1.0'
+swagger_info_description: 'A short description of the applicatio'
+swagger_info_terms_service: /node/4740
+contact_needs: 1
+swagger_info_contact_name: 'The identifying name of the contact person/organization.'
+swagger_info_contact_url: 'http://demo-davidlfg.c9users.io/'
+swagger_info_contact_email: davidlfg@gmail.com
+license_needs: 0
+swagger_info_license_name: ''
+swagger_info_license_url: ''
