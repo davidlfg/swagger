@@ -8,6 +8,7 @@ use Swagger\Annotations\Info;
 use Swagger\Annotations\Swagger;
 use Swagger\Processors\MergeIntoSwagger;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Logger\LoggerChannelInterface;
 
 /**
  * Provides a SwaggerScan plugin implementation.
@@ -22,10 +23,16 @@ class SwaggerScan implements SwaggerScanInterface {
   private $config;
   
   /**
+   * @object LoggerChannel logger
+   */
+  private $logger;
+  
+  /**
    * Class constructor.
    */
-  public function __construct(ConfigFactoryInterface $config) {
+  public function __construct(ConfigFactoryInterface $config, LoggerChannelInterface $logger) {
     $this->config = $config->getEditable('swagger.settings');
+    $this->logger = $logger;
   }
   
   /**
@@ -33,7 +40,6 @@ class SwaggerScan implements SwaggerScanInterface {
    */
   public function generateSwaggerFile($base_url) {
     //get drupal configurations
-
     $scan_folder = './' . $this->config->get('swagger_scan_folder');
     $file_path = './' . $this->config->get('swagger_scan_output');
     $json_file = $file_path . '/swagger.json';
@@ -41,7 +47,7 @@ class SwaggerScan implements SwaggerScanInterface {
     if (!file_prepare_directory($file_path, FILE_CREATE_DIRECTORY)) {
       $message = t("You don't have permission in the directory: ") . $file_path;
       drupal_set_message(t('Written to: '), 'status');
-      Drupal::logger('swagger')->error($message);
+      $this->logger->error($message);
       exit();
     }
     //Prepare the basic structure  
@@ -127,13 +133,13 @@ class SwaggerScan implements SwaggerScanInterface {
         return; // This error code is not included in error_reporting
       }
       $type = array_key_exists($errno, $errorTypes) ? $errorTypes[$errno] : 'ERROR';
-      Drupal::logger('swagger')->error('[' . $type . '] '.$errstr .' in '.$file.' on line '.$line);
+      $this->logger->error('[' . $type . '] '.$errstr .' in '.$file.' on line '.$line);
       if ($type === 'ERROR') {
         exit($errno);
       }
     });
     set_exception_handler(function ($exception) {
-      Drupal::logger('swagger')->error('[EXCEPTION] '.$exception->getMessage() .' in '.$exception->getFile().' on line '.$exception->getLine());
+      $this->logger->error('[EXCEPTION] '.$exception->getMessage() .' in '.$exception->getFile().' on line '.$exception->getLine());
       exit($exception->getCode() ?: 1);
     });
     \Swagger\Logger::getInstance()->log = function ($entry, $type) {

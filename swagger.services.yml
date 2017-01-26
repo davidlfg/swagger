@@ -1,4 +1,8 @@
 services:
   config.swagger:
     class: Drupal\swagger\SwaggerScan
-    arguments: ['@config.factory', '@logger.factory']
+    arguments: ['@config.factory', '@logger.channel.swagger']
+    
+  logger.channel.swagger:
+    parent: logger.channel_base
+    arguments: ['swagger']
