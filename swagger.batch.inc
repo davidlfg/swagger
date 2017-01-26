@@ -7,7 +7,7 @@ use Drupal\swagger\SwaggerScan;
  */
 function swagger_batch($arg, &$context) {
   global $base_url;
-  $swagger = new SwaggerScan();
+  $swagger = Drupal::service('config.swagger');
   $swagger->generateSwaggerFile($base_url);
   $message = 'Scanning code...';
   $context['message'] = $message;

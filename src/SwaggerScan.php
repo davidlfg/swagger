@@ -7,6 +7,7 @@ use Swagger\Analysis;
 use Swagger\Annotations\Info;
 use Swagger\Annotations\Swagger;
 use Swagger\Processors\MergeIntoSwagger;
+use Drupal\Core\Config\ConfigFactoryInterface;
 
 /**
  * Provides a SwaggerScan plugin implementation.
@@ -14,19 +15,33 @@ use Swagger\Processors\MergeIntoSwagger;
 class SwaggerScan implements SwaggerScanInterface {
   
   /**
+   * @object ConfigFactory swagger.settings
+   * 
+   * \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  private $config;
+  
+  /**
+   * Class constructor.
+   */
+  public function __construct(ConfigFactoryInterface $config) {
+    $this->config = $config->getEditable('swagger.settings');
+  }
+  
+  /**
    * {@inheritdoc}
    */
   public function generateSwaggerFile($base_url) {
     //get drupal configurations
-    $config = \Drupal::config('swagger.settings');
-    $scan_folder = './' . $config->get('swagger_scan_folder');
-    $file_path = './' . $config->get('swagger_scan_output');
+
+    $scan_folder = './' . $this->config->get('swagger_scan_folder');
+    $file_path = './' . $this->config->get('swagger_scan_output');
     $json_file = $file_path . '/swagger.json';
     //prepare directory file
     if (!file_prepare_directory($file_path, FILE_CREATE_DIRECTORY)) {
       $message = t("You don't have permission in the directory: ") . $file_path;
       drupal_set_message(t('Written to: '), 'status');
-      \Drupal::logger('my_module')->error($message);
+      Drupal::logger('swagger')->error($message);
       exit();
     }
     //Prepare the basic structure  
@@ -112,13 +127,13 @@ class SwaggerScan implements SwaggerScanInterface {
         return; // This error code is not included in error_reporting
       }
       $type = array_key_exists($errno, $errorTypes) ? $errorTypes[$errno] : 'ERROR';
-      \Drupal::logger('my_module')->error('[' . $type . '] '.$errstr .' in '.$file.' on line '.$line);
+      Drupal::logger('swagger')->error('[' . $type . '] '.$errstr .' in '.$file.' on line '.$line);
       if ($type === 'ERROR') {
         exit($errno);
       }
     });
     set_exception_handler(function ($exception) {
-      \Drupal::logger('my_module')->error('[EXCEPTION] '.$exception->getMessage() .' in '.$exception->getFile().' on line '.$exception->getLine());
+      Drupal::logger('swagger')->error('[EXCEPTION] '.$exception->getMessage() .' in '.$exception->getFile().' on line '.$exception->getLine());
       exit($exception->getCode() ?: 1);
     });
     \Swagger\Logger::getInstance()->log = function ($entry, $type) {
@@ -137,24 +152,23 @@ class SwaggerScan implements SwaggerScanInterface {
    * @return Info Object
    */
   protected function _swagger_info_object() {
-    $config = \Drupal::config('swagger.settings');
     $info = [
-      "title" => $config->get('swagger_info_title'),
-      "description" => $config->get('swagger_info_description'),
-      "termsOfService" => $config->get('swagger_info_terms_service'),
-      "version" => $config->get('swagger_info_version')
+      "title" => $this->config->get('swagger_info_title'),
+      "description" => $this->config->get('swagger_info_description'),
+      "termsOfService" => $this->config->get('swagger_info_terms_service'),
+      "version" => $this->config->get('swagger_info_version')
     ];
-    if ($config->get('contact_needs')) {
+    if ($this->config->get('contact_needs')) {
       $info["contact"] = [
-        "name" => $config->get('swagger_info_contact_name'),
-        "url" => $config->get('swagger_info_contact_url'),
-        "email" => $config->get('swagger_info_contact_email'),
+        "name" => $this->config->get('swagger_info_contact_name'),
+        "url" => $this->config->get('swagger_info_contact_url'),
+        "email" => $this->config->get('swagger_info_contact_email'),
       ];
     }
-    if ($config->get('license_needs')) {
+    if ($this->config->get('license_needs')) {
       $info["license"] = [
-        "name" => $config->get('swagger_info_license_name'),
-        "url" => $config->get('swagger_info_license_url'),
+        "name" => $this->config->get('swagger_info_license_name'),
+        "url" => $this->config->get('swagger_info_license_url'),
       ];
     }
     return $info;
@@ -166,15 +180,14 @@ class SwaggerScan implements SwaggerScanInterface {
    * @return Info Object
    */
   protected function _swagger_swagger_object($swagger_info_object, $base_url) {
-    $config = \Drupal::config('swagger.settings');
     return [
-      'swagger' => $config->get('swagger_swagger_version'),
+      'swagger' => $this->config->get('swagger_swagger_version'),
       'info' => new Info($swagger_info_object),
       'host' => preg_replace('/^http(s)?:\/\//i', '', $base_url),
       'basePath' => \Drupal::request()->getBasePath(),
-      'schemes' => $config->get('swagger_swagger_schemes'),
-      'consumes' => $config->get('swagger_swagger_consumes'),
-      'produces' => $config->get('swagger_swagger_produces'),
+      'schemes' => $this->config->get('swagger_swagger_schemes'),
+      'consumes' => $this->config->get('swagger_swagger_consumes'),
+      'produces' => $this->config->get('swagger_swagger_produces'),
     ];
   }
 }

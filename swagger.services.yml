@@ -1,0 +1,4 @@
+services:
+  config.swagger:
+    class: Drupal\swagger\SwaggerScan
+    arguments: ['@config.factory', '@logger.factory']

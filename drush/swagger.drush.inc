@@ -29,17 +29,13 @@ function swagger_drush_command() {
  */
 function drush_swagger_scan($site_uri = NULL) {
   if (is_null($site_uri)) {
-    drush_print('Enter site URI');
-    drush_print('drush sws [site uri]');
+    drupal_set_message(t('---  SWAGGER WARNING ---'), 'warning');
+    drupal_set_message(t('The command require: site URI example:'), 'warning');
+    drupal_set_message(t('drush sws [site uri]'), 'warning');
     return;
   }
   //get drupal configurations
-  $config = \Drupal::config('swagger.settings');
-  $scan_folder = './' . $config->get('swagger_scan_folder');
-  $file_path = './' . $config->get('swagger_scan_output');
-  $json_file = $file_path . '/swagger.json';
-  
-  $swagger = new SwaggerScan();
+  $swagger = Drupal::service('config.swagger');
   $swagger->generateSwaggerFile($site_uri);
   
 }
