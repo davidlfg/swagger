@@ -52,7 +52,7 @@ class SwaggerBasicDocumentationForm extends ConfigFormBase implements FormInterf
       '#title' => $this->t('Schemes'),
       '#multiple' => TRUE,
       '#description' => $this->t('The transfer protocol of the API.'),
-      '#options' => getTranferProtocol(),
+      '#options' => $this->getTranferProtocol(),
       '#default_value' => $config->get('swagger_swagger_schemes')
     );
     $form['info']['swagger_info_title'] = array(
@@ -163,7 +163,7 @@ class SwaggerBasicDocumentationForm extends ConfigFormBase implements FormInterf
       '#title' => $this->t('Consumes'),
       '#multiple' => TRUE,
       '#description' => $this->t('This is global to all APIs but can be overridden on specific API calls.'),
-      '#options' => getMineTypeDefinitions(),
+      '#options' => $this->getMineTypeDefinitions(),
       '#default_value' => $config->get('swagger_swagger_consumes')
     );
     $form['info']['swagger_swagger_produces'] = array(
@@ -171,7 +171,7 @@ class SwaggerBasicDocumentationForm extends ConfigFormBase implements FormInterf
       '#title' => $this->t('Produces'),
       '#multiple' => TRUE,
       '#description' => $this->t(' This is global to all APIs but can be overridden on specific API calls.'),
-      '#options' => getMineTypeDefinitions(),
+      '#options' => $this->getMineTypeDefinitions(),
       '#default_value' => $config->get('swagger_swagger_produces')
     );
     return $form;
@@ -209,6 +209,41 @@ class SwaggerBasicDocumentationForm extends ConfigFormBase implements FormInterf
    */
   protected function getEditableConfigNames() {
     return ['swagger.settings'];
+  }
+  
+  /**
+   * Function getTranferProtocol().
+   *
+   * @return List of tranfer Protocol
+   */
+  function getTranferProtocol($key = NULL) {
+    return [
+      'http' => 'http',
+      'https' => 'https',
+      'ws' => 'ws',
+      'wss' => 'wss'
+    ];
+  }
+  
+  /**
+   * Function getMineTypeDefinitions().
+   * 
+   * @return List of mine type definitions
+   */
+  function getMineTypeDefinitions() {
+    return [
+      'text/plain; charset=utf-8' => 'text/plain; charset=utf-8',
+      'application/json' => 'application/json',
+      'application/xml' => 'application/xml',
+      'application/vnd.github+json' => 'application/vnd.github+json',
+      'application/vnd.github.v3+json' => 'application/vnd.github.v3+json',
+      'application/vnd.github.v3.raw+json' => 'application/vnd.github.v3.raw+json',
+      'application/vnd.github.v3.text+json' => 'application/vnd.github.v3.text+json',
+      'application/vnd.github.v3.html+json' => 'application/vnd.github.v3.text+json',
+      'application/vnd.github.v3.full+json' => 'application/vnd.github.v3.full+json',
+      'application/vnd.github.v3.diff' => 'application/vnd.github.v3.diff',
+      'application/vnd.github.v3.patch' => 'application/vnd.github.v3.patch'
+    ];
   }
   
 }
