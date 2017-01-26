@@ -1,6 +1,6 @@
-swagger.admin:
+swagger_scan.admin:
   title: 'Swagger'
-  description: 'Swagger Integration D8'
+  description: 'Scan code and create swagger.json file'
   parent: system.admin_config_services
-  route_name: swagger.admin
+  route_name: swagger_scan.admin
   weight: 100
