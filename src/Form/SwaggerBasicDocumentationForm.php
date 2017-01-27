@@ -1,20 +1,16 @@
 <?php
-/**
- * @file
- * Contains \Drupal\swagger\Form
- */
 
 namespace Drupal\swagger\Form;
 
 use Drupal\Core\Form\FormInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Url;
 
 /**
  * SwaggerBasicDocumentationForm form.
  */
 class SwaggerBasicDocumentationForm extends ConfigFormBase implements FormInterface {
+
   /**
    * {@inheritdoc}
    */
@@ -45,7 +41,7 @@ class SwaggerBasicDocumentationForm extends ConfigFormBase implements FormInterf
       '#type' => 'textfield',
       '#title' => $this->t('Base path'),
       '#description' => $this->t('The base path on which the API is served, which is relative to the host. If it is not included, the API is served directly under the host. The value MUST start with a leading slash (/).'),
-      '#default_value' => $config->get('swagger_swagger_base_path') ?: '/'
+      '#default_value' => $config->get('swagger_swagger_base_path') ?: '/',
     );
     $form['info']['swagger_swagger_schemes'] = array(
       '#type' => 'select',
@@ -53,14 +49,14 @@ class SwaggerBasicDocumentationForm extends ConfigFormBase implements FormInterf
       '#multiple' => TRUE,
       '#description' => $this->t('The transfer protocol of the API.'),
       '#options' => $this->getTranferProtocol(),
-      '#default_value' => $config->get('swagger_swagger_schemes')
+      '#default_value' => $config->get('swagger_swagger_schemes'),
     );
     $form['info']['swagger_info_title'] = array(
       '#type' => 'textfield',
       '#title' => $this->t('Title'),
       '#description' => $this->t('The title of the application.'),
       '#default_value' => $config->get('swagger_info_title') ?: $config_system->get('name'),
-      '#required' => TRUE
+      '#required' => TRUE,
     );
     $form['info']['swagger_info_version'] = array(
       '#type' => 'textfield',
@@ -77,15 +73,15 @@ class SwaggerBasicDocumentationForm extends ConfigFormBase implements FormInterf
       '#type' => 'textfield',
       '#title' => $this->t('Description'),
       '#description' => $this->t('A short description of the application.'),
-      '#default_value' => $config->get('swagger_info_description')
+      '#default_value' => $config->get('swagger_info_description'),
     );
     $form['info']['swagger_info_terms_service'] = array(
       '#type' => 'textfield',
       '#title' => $this->t('Terms of service'),
       '#description' => $this->t('The Terms of Service for the API. Enter path or URL'),
-      '#default_value' => $config->get('swagger_info_terms_service')
+      '#default_value' => $config->get('swagger_info_terms_service'),
     );
-    //Contact
+    // Contact.
     $form['info']['contact_needs'] = array(
       '#type' => 'checkbox',
       '#title' => $this->t('Show information about contact?'),
@@ -114,17 +110,16 @@ class SwaggerBasicDocumentationForm extends ConfigFormBase implements FormInterf
     $form['info']['contact']['swagger_info_contact_url'] = array(
       '#type' => 'url',
       '#title' => $this->t('URL'),
-      //'#url' => Url::fromUri(), to validate
       '#description' => $this->t('The URL pointing to the contact information. MUST be in the format of a URL.'),
-      '#default_value' => $config->get('swagger_info_contact_url')
+      '#default_value' => $config->get('swagger_info_contact_url'),
     );
     $form['info']['contact']['swagger_info_contact_email'] = array(
       '#type' => 'email',
       '#title' => $this->t('Email'),
       '#description' => $this->t('The email address of the contact person/organization. MUST be in the format of an email address.'),
-      '#default_value' => $config->get('swagger_info_contact_email')
+      '#default_value' => $config->get('swagger_info_contact_email'),
     );
-    //license
+    // License.
     $form['info']['license_needs'] = array(
       '#type' => 'checkbox',
       '#title' => $this->t('Show information about the license?'),
@@ -150,13 +145,12 @@ class SwaggerBasicDocumentationForm extends ConfigFormBase implements FormInterf
           ':input[name="license_needs"]' => array('checked' => TRUE),
         ),
       ),
-      
     );
     $form['info']['license']['swagger_info_license_url'] = array(
       '#type' => 'url',
       '#title' => $this->t('URL'),
       '#description' => $this->t('A URL to the license used for the API. MUST be in the format of a URL.'),
-      '#default_value' => $config->get('swagger_info_license_url')
+      '#default_value' => $config->get('swagger_info_license_url'),
     );
     $form['info']['swagger_swagger_consumes'] = array(
       '#type' => 'select',
@@ -164,20 +158,20 @@ class SwaggerBasicDocumentationForm extends ConfigFormBase implements FormInterf
       '#multiple' => TRUE,
       '#description' => $this->t('This is global to all APIs but can be overridden on specific API calls.'),
       '#options' => $this->getMineTypeDefinitions(),
-      '#default_value' => $config->get('swagger_swagger_consumes')
+      '#default_value' => $config->get('swagger_swagger_consumes'),
     );
     $form['info']['swagger_swagger_produces'] = array(
       '#type' => 'select',
       '#title' => $this->t('Produces'),
       '#multiple' => TRUE,
-      '#description' => $this->t(' This is global to all APIs but can be overridden on specific API calls.'),
+      '#description' => $this->t('This is global to all APIs but can be overridden on specific API calls.'),
       '#options' => $this->getMineTypeDefinitions(),
-      '#default_value' => $config->get('swagger_swagger_produces')
+      '#default_value' => $config->get('swagger_swagger_produces'),
     );
     return $form;
   }
-  
- /**
+
+  /**
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
@@ -190,18 +184,21 @@ class SwaggerBasicDocumentationForm extends ConfigFormBase implements FormInterf
     $values = $form_state->cleanValues()->getValues();
     $config = $this->config('swagger.settings');
     foreach ($values as $key => $value) {
-      if (in_array($key, ['swagger_swagger_schemes', 'swagger_swagger_produces', 'swagger_swagger_consumes'])) {
+      $keys_field = [
+        'swagger_swagger_schemes',
+        'swagger_swagger_produces',
+        'swagger_swagger_consumes',
+      ];
+      if (in_array($key, $key_field)) {
         $array_value = array_values($form_state->getValue($key));
         $config->set($key, $array_value)->save();
       }
       else {
         $config->set($key, $form_state->getValue($key))->save();
       }
-      
     }
     $config->save();
     parent::submitForm($form, $form_state);
-    return;
   }
 
   /**
@@ -210,27 +207,29 @@ class SwaggerBasicDocumentationForm extends ConfigFormBase implements FormInterf
   protected function getEditableConfigNames() {
     return ['swagger.settings'];
   }
-  
+
   /**
    * Function getTranferProtocol().
    *
-   * @return List of tranfer Protocol
+   * @return array
+   *   List of tranfer Protocol.
    */
-  function getTranferProtocol($key = NULL) {
+  public function getTranferProtocol($key = NULL) {
     return [
       'http' => 'http',
       'https' => 'https',
       'ws' => 'ws',
-      'wss' => 'wss'
+      'wss' => 'wss',
     ];
   }
-  
+
   /**
    * Function getMineTypeDefinitions().
-   * 
-   * @return List of mine type definitions
+   *
+   * @return array
+   *   List of mine type definitions.
    */
-  function getMineTypeDefinitions() {
+  public function getMineTypeDefinitions() {
     return [
       'text/plain; charset=utf-8' => 'text/plain; charset=utf-8',
       'application/json' => 'application/json',
@@ -242,8 +241,8 @@ class SwaggerBasicDocumentationForm extends ConfigFormBase implements FormInterf
       'application/vnd.github.v3.html+json' => 'application/vnd.github.v3.text+json',
       'application/vnd.github.v3.full+json' => 'application/vnd.github.v3.full+json',
       'application/vnd.github.v3.diff' => 'application/vnd.github.v3.diff',
-      'application/vnd.github.v3.patch' => 'application/vnd.github.v3.patch'
+      'application/vnd.github.v3.patch' => 'application/vnd.github.v3.patch',
     ];
   }
-  
+
 }

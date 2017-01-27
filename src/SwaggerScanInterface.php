@@ -8,13 +8,11 @@ namespace Drupal\swagger;
 interface SwaggerScanInterface {
 
   /**
-   * Execute the scan and save
+   * Execute the scan and save.
    *
-   * @param string $site_uri
-   *   necessary by Drush command.
-   * @param array $output_swagger_message
-   *   Contains the messages for the batch
+   * @param string $base_url
+   *   Necessary site uri by Drush command.
    */
   public function generateSwaggerFile($base_url);
-  
+
 }

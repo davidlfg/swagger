@@ -12,7 +12,6 @@
   Drupal.behaviors.AJAX = {
     attach: function (context, settings) {
       var url = drupalSettings.swagger.swagger_json_url;
-      
       /*
        hljs.configure({
        highlightSizeThreshold: 5000
