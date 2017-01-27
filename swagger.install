@@ -1,17 +1,22 @@
 <?php
 
 /**
+ * @file
+ * Define the terms of installation.
+ */
+
+/**
  * Implements hook_requirements().
  */
 function swagger_requirements($phase) {
   $requirements = [];
   if ($phase == 'install') {
-    /*if (!class_exists('Swagger\Serializer')) {
+    if (!class_exists('Swagger\Serializer')) {
       $requirements['swagger_library'] = [
         'description' => t('Swagger module requires the "zircote/swagger-php" library to work. Please, you must execute the composer install command.'),
         'severity' => REQUIREMENT_ERROR,
       ];
-    }*/
+    }
   }
   return $requirements;
 }

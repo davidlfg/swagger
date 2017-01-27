@@ -1,6 +1,9 @@
 <?php
 
-use Drupal\swagger\SwaggerScan;
+/**
+ * @file
+ * Swagger.batch.inc.
+ */
 
 /**
  * Function swagger_batch().

@@ -5,8 +5,6 @@
  * Drush integration for the swagger module.
  */
 
-use Drupal\swagger\SwaggerScan;
-
 /**
  * Implements hook_drush_command().
  */
@@ -15,7 +13,7 @@ function swagger_drush_command() {
   $items['swagger-scan'] = [
     'description' => 'Run the scan code.',
     'arguments' => [
-      'site_uri' => ''  
+      'site_uri' => '',
     ],
     'drupal dependencies' => ['swagger'],
     'aliases' => ['sws'],
@@ -34,8 +32,8 @@ function drush_swagger_scan($site_uri = NULL) {
     drupal_set_message(t('drush sws [site uri]'), 'warning');
     return;
   }
-  //get drupal configurations
+  // Run swagger generate file.
   $swagger = Drupal::service('config.swagger');
   $swagger->generateSwaggerFile($site_uri);
-  
+
 }

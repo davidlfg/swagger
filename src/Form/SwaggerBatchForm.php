@@ -1,20 +1,16 @@
 <?php
-/**
- * @file
- * Contains \Drupal\swagger\Form\SwaggerBatchForm.
- */
 
 namespace Drupal\swagger\Form;
+
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Form\ConfigFormBase;
-use Drupal\Core\Form\FormInterface;
 use Drupal\Core\Url;
 
 /**
  * SwaggerBatchForm form.
  */
 class SwaggerBatchForm extends ConfigFormBase {
+
   /**
    * {@inheritdoc}
    */
@@ -54,28 +50,28 @@ class SwaggerBatchForm extends ConfigFormBase {
       '#type' => 'submit',
       '#value' => t('Save configuration and Scan code'),
     );
-    require_once('core/includes/install.inc');//FIX
+    require_once 'core/includes/install.inc';
     if (drupal_verify_install_file('./' . $config->get('swagger_scan_output') . '/swagger.json', FILE_EXIST)) {
       $url = Url::fromUri(file_create_url($config->get('swagger_scan_output') . '/swagger.json'));
       $link_options = array(
         'attributes' => array(
-          'target' => array('_blank')
+          'target' => array('_blank'),
         ),
       );
       $url->setOptions($link_options);
       $link = \Drupal::l(t('/swagger.json'), $url);
       $form['swagger_scan_output']['#field_suffix'] = $link;
-      //swagger ui link
+      // Swagger ui link.
       if (drupal_verify_install_file('libraries/swagger-ui/dist/swagger-ui.js', FILE_EXIST)) {
         $form['swagger_ui'] = array(
           '#title' => $this->t('Swagger UI'),
           '#type' => 'link',
           '#url' => Url::fromRoute('swagger.swaggerui'),
         );
-      } else {
-         drupal_set_message($this->t('clone https://github.com/swagger-api/swagger-ui.git and move the "swagger-ui" folder to /libraries/'), 'warning', FALSE);
       }
-      
+      else {
+        drupal_set_message($this->t('clone https://github.com/swagger-api/swagger-ui.git and move the "swagger-ui" folder to /libraries/'), 'warning', FALSE);
+      }
     }
     return $form;
   }
@@ -96,9 +92,8 @@ class SwaggerBatchForm extends ConfigFormBase {
       $config->set($key, $form_state->getValue($key))->save();
     }
     $config->save();
-    //run batch
+    // Run batch.
     $form_state->setRedirect('swagger.batch');
-    return;
   }
 
   /**
