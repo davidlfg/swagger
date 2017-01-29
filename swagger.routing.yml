@@ -1,7 +1,7 @@
 swagger_scan.admin:
   path: '/admin/structure/swagger-scan'
   defaults:
-    _form: '\Drupal\swagger\Form\SwaggerBatchForm'
+    _form: '\Drupal\swagger\Form\SwaggerScanForm'
     _title: 'Swagger - Scan code'
   requirements:
     _permission: 'administer site configuration'
@@ -13,14 +13,6 @@ swagger_basic_documentation.admin:
     _title: 'Swagger - Basic documentation'
   requirements:
     _permission: 'administer site configuration'
-
-swagger.batch:
-  path: '/swagger-batch'
-  defaults:
-    _controller: '\Drupal\swagger\Controller\SwaggerBatchController::runBatch'
-    _title: 'Swagger Batch'
-  requirements:
-    _permission: 'administer content'
 
 swagger.swaggerui:
   path: '/swagger/swagger-ui'
