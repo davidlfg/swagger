@@ -7,7 +7,7 @@ use Drupal\Core\Controller\ControllerBase;
 /**
  * Controller for the Swagger UI page callbacks.
  */
-class SwaggerController extends ControllerBase {
+class SwaggerPageUI extends ControllerBase {
 
   /**
    * Function swaggerUiPage.

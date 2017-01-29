@@ -17,6 +17,6 @@ swagger_basic_documentation.admin:
 swagger.swaggerui:
   path: '/swagger/swagger-ui'
   defaults:
-    _controller: '\Drupal\swagger\Controller\SwaggerController::swaggerUiPage'
+    _controller: '\Drupal\swagger\Controller\SwaggerPageUI::swaggerUiPage'
   requirements:
     _permission: 'swagger ui'
