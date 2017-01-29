@@ -46,6 +46,17 @@ class SwaggerScanForm extends ConfigFormBase {
       '#default_value' => $config->get('swagger_scan_output') ?: 'sites/default/files/swagger',
       '#required' => TRUE,
     );
+    $form['swagger_ui_path'] = array(
+      '#type' => 'textfield',
+      '#title' => $this->t('Swagger UI path'),
+      '#description' => $this->t('Define a path to Swagger UI Page. Example: /swagger/swagger-ui. After submitting "clear cache"'),
+      '#attributes' => array(
+        'placeholder' => $this->t('/swagger/swagger-ui'),
+        'autofocus' => TRUE,
+      ),
+      '#default_value' => $config->get('swagger_ui_path') ?: '/swagger/swagger-ui',
+      '#required' => TRUE,
+    );
     $form['submit'] = array(
       '#type' => 'submit',
       '#value' => t('Save configuration and Scan code'),
@@ -59,15 +70,13 @@ class SwaggerScanForm extends ConfigFormBase {
         ),
       );
       $url->setOptions($link_options);
-      $link = \Drupal::l(t('/swagger.json'), $url);
-      $form['swagger_scan_output']['#field_suffix'] = $link;
+      $swagger_json_link = \Drupal::l(t('/swagger.json'), $url);
+      $form['swagger_scan_output']['#field_suffix'] = $swagger_json_link;
       // Swagger ui link.
       if (drupal_verify_install_file('libraries/swagger-ui/dist/swagger-ui.js', FILE_EXIST)) {
-        $form['swagger_ui'] = array(
-          '#title' => $this->t('Swagger UI'),
-          '#type' => 'link',
-          '#url' => Url::fromRoute('swagger.swaggerui'),
-        );
+        $path_swagger_ui = Url::fromRoute('swagger.swaggerui');
+        $swagger_ui_link = \Drupal::l(t('Swagger UI'), $path_swagger_ui);
+        $form['swagger_ui_path']['#field_suffix'] = $swagger_ui_link;
       }
       else {
         drupal_set_message($this->t('clone https://github.com/swagger-api/swagger-ui.git and move the "swagger-ui" folder to /libraries/'), 'warning', FALSE);
@@ -96,6 +105,7 @@ class SwaggerScanForm extends ConfigFormBase {
     global $base_url;
     $swagger = \Drupal::service('config.swagger');
     $swagger->generateSwaggerFile($base_url);
+    $form_state->setRedirect('swagger_scan.admin');
   }
 
   /**

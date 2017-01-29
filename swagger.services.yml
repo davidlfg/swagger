@@ -6,3 +6,9 @@ services:
   logger.channel.swagger:
     parent: logger.channel_base
     arguments: ['swagger']
+    
+  swagger.route_subscriber:
+    class: Drupal\swagger\Routing\RouteSubscriber
+    arguments: ['@config.factory']
+    tags:
+      - { name: event_subscriber }
