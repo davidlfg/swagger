@@ -15,7 +15,9 @@ function swagger_help($route_name, RouteMatchInterface $route_match) {
     case 'help.page.swagger':
       $output = '';
       $output .= '<h3>' . t('About Swagger') . '</h3>';
-      $output .= '<p>' . t('Generate interactive Swagger documentation for your RESTful API using doctrine annotations.') . '</p>';
+      $output .= '<p><a href="http://swagger.io/" target="_blank">Swagger </a>' . t('is a powerful open source framework backed by a large ecosystem of tools that helps you design, build, document, and consume your RESTful APIs.') . '</p>';
+      $output .= '<p>' . t('The Swagger Drupal module allows your to describe your API using a specific JSON schema that outlines the names, order, and other details of the API.') . '</p>';
+      $output .= '<p>' . t('The purpose of the module is to generate a json file that can be read and interpreted by <a href="http://swagger.io/swagger-ui/" target="_blank">Swagger UI</a>.') . '</p>';
       return $output;
   }
 }
