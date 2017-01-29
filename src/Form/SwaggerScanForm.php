@@ -7,15 +7,15 @@ use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Url;
 
 /**
- * SwaggerBatchForm form.
+ * SwaggerScanForm form.
  */
-class SwaggerBatchForm extends ConfigFormBase {
+class SwaggerScanForm extends ConfigFormBase {
 
   /**
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'swagger_batch_form';
+    return 'swagger_scan_form';
   }
 
   /**
@@ -92,8 +92,10 @@ class SwaggerBatchForm extends ConfigFormBase {
       $config->set($key, $form_state->getValue($key))->save();
     }
     $config->save();
-    // Run batch.
-    $form_state->setRedirect('swagger.batch');
+    // Run Scan code.
+    global $base_url;
+    $swagger = \Drupal::service('config.swagger');
+    $swagger->generateSwaggerFile($base_url);
   }
 
   /**

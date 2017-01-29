@@ -1,9 +1,9 @@
-swagger_scan.tab:
-  title: 'Scan code'
-  route_name: swagger_scan.admin
-  base_route: swagger_scan.admin
-
 swagger_basic_documentation.tab:
   title: 'Basic documentation'
   route_name: swagger_basic_documentation.admin
-  base_route: swagger_scan.admin
+  base_route: swagger_basic_documentation.admin
+
+swagger_scan.tab:
+  title: 'Scan code'
+  route_name: swagger_scan.admin
+  base_route: swagger_basic_documentation.admin
