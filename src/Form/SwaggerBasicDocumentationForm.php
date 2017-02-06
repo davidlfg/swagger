@@ -189,7 +189,7 @@ class SwaggerBasicDocumentationForm extends ConfigFormBase implements FormInterf
         'swagger_swagger_produces',
         'swagger_swagger_consumes',
       ];
-      if (in_array($key, $key_field)) {
+      if (in_array($key, $keys_field)) {
         $array_value = array_values($form_state->getValue($key));
         $config->set($key, $array_value)->save();
       }

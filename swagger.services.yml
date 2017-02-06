@@ -1,14 +1,46 @@
 services:
-  config.swagger:
-    class: Drupal\swagger\SwaggerScan
-    arguments: ['@config.factory', '@logger.channel.swagger']
-    
   logger.channel.swagger:
     parent: logger.channel_base
     arguments: ['swagger']
-    
+
   swagger.route_subscriber:
     class: Drupal\swagger\Routing\RouteSubscriber
     arguments: ['@config.factory']
     tags:
       - { name: event_subscriber }
+
+  swagger.annotation.factory:
+    class: Drupal\swagger\SwaggerAnnotationFactory
+    arguments: ['@config.factory']
+
+  swagger.annotation.info:
+    class: \Swagger\Annotations\Info
+    factory: swagger.annotation.factory:getSwaggerInfo
+    tags:
+      - { name: parameter_service }
+
+  swagger.annotation.root:
+    class: \Swagger\Annotations\Swagger
+    factory: swagger.annotation.factory:getSwaggerRoot
+    tags:
+      - { name: parameter_service }
+
+  swagger.annotation.resources:
+    class: Drupal\swagger\SwaggerResourcesFactory
+    arguments: ['@entity_type.manager', '@entity_field.manager']
+    tags:
+      - { name: parameter_service }
+
+  swagger.analysis.factory:
+    class: Drupal\swagger\SwaggerAnalysisFactory
+    arguments: ['@swagger.annotation.info', '@swagger.annotation.root']
+    
+  swagger.analysis.get:
+    class: \Swagger\Analysis
+    factory: swagger.analysis.factory:getAnalysis
+    tags:
+      - { name: parameter_service }
+
+  config.swagger:
+    class: Drupal\swagger\SwaggerScan
+    arguments: ['@config.factory', '@logger.channel.swagger', '@swagger.annotation.info', '@swagger.annotation.root', '@swagger.analysis.get']
