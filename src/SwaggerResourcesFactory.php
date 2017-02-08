@@ -11,6 +11,9 @@ use Symfony\Component\Routing\Route;
 use Drupal\rest\Plugin\rest\resource\EntityResource;
 use Drupal\rest\RestResourceConfigInterface;
 
+use Swagger\Annotations;
+
+
 /**
  * Defines a factory for logging channels.
  */
@@ -46,14 +49,44 @@ class SwaggerResourcesFactory {
     $resource_paths = [];
     foreach($paths as $path => $methods) {
       foreach($methods as $method => $data) {
+        $data['tags'] = ['Rest Resources'];
         $data['path'] = $path;
-        $data['summary'] = (string) $method . '-' . $path;
-        $data['responses'] = [];
-        $data['tags'] = ['REST resources'];
+        $data['method'] = $method;
+        $data['responses'] = [
+          "200"=> [
+            "description"=> "OK",
+            /*"schema"=> [
+              "ref"=> "#/definitions/Event"
+            ]*/
+          ]
+        ];
+        $data['responses'] = [];//new Annotations\Response([]);
+        $annotation_path = [];
         switch ($method) {
           case "get":
-            $resource_paths[] = new Annotations\Get($data);
+            $annotation_path = new Annotations\Get($data);
           break;
+          case "post":
+            $annotation_path = new Annotations\Post($data);
+          break;
+          case "put":
+            $annotation_path = new Annotations\Put($data);
+          break;
+          case "patch":
+            $annotation_path = new Annotations\Patch($data);
+          break;
+          case "delete":
+            $annotation_path = new Annotations\Delete($data);
+          break;
+          case "head":
+            $annotation_path = new Annotations\Head($data);
+          break;
+          case "options":
+            $annotation_path = new Annotations\Options($data);
+          break;
+        }
+        if ($annotation_path != []) {
+          $resource_paths[] = $annotation_path;
         }
       }
     }
@@ -92,10 +125,10 @@ class SwaggerResourcesFactory {
           if ($resource_plugin instanceof EntityResource) {
 
             $entity_type = $this->entity_type_manager->getDefinition($resource_plugin->getPluginDefinition()['entity_type']);
-            $path_method_spec['summary'] = t('@method a @entity_type', [
+            /*$path_method_spec['summary'] = t('@method a @entity_type', [
               '@method' => ucfirst($swagger_method),
               '@entity_type' => $entity_type->getLabel(),
-            ]);
+            ]);*/
 
             $path_method_spec['consumes'] = ['application/json'];
             $path_method_spec['produces'] = ['application/json'];
@@ -107,13 +140,12 @@ class SwaggerResourcesFactory {
           }
 
           $path_method_spec['operationId'] = $resource_plugin->getPluginId();
-          $path_method_spec['schemes'] = ['http'];
+          $path_method_spec['schemes'] = ['http'];//variable
           $path_method_spec['parameters'] = array_merge($path_method_spec['parameters'], $this->getRouteParameters($route));
-          $path_method_spec['security'] = $this->getSecurity($resource_config, $method);
           $api_paths[$path][$swagger_method] = $path_method_spec;
         }
       }
-      return $api_paths;//TEMPORAL
+      //return $api_paths;//TEMPORAL
     }
     return $api_paths;
   }
@@ -162,19 +194,14 @@ class SwaggerResourcesFactory {
     $parameter = [
       'name' => $field->getName(),
       'required' => $field->isRequired(),
+      'description' => $field->getDescription()
     ];
-    $type = $field->getType();
-    $date_types = ['changed', 'created'];
-    if (in_array($type, $date_types)) {
-      $parameter['type'] = 'string';
-      $parameter['format'] = 'date-time';
-    }
-    else {
-      $string_types = ['string_long', 'uuid'];
-      if (in_array($type, $string_types)) {
-        $parameter['type'] = 'string';
-      }
-    }
+    $drupal_schema = $field->getSchema();
+    $drupal_type = $drupal_schema['columns']['value']['type'];
+    $drupal_size = isset($drupal_schema['columns']['value']['size']) ? $drupal_schema['columns']['value']['size'] : '';
+    $swagger_types = $this->getSwaggerDataTypesbyDrupalTypes($drupal_type, $drupal_size, $field->getName());
+    $parameter['type'] = $swagger_types['type'];
+    $parameter['format'] = $swagger_types['format'];
     $parameter['default'] = '';
     return $parameter;
 
@@ -221,27 +248,132 @@ class SwaggerResourcesFactory {
   }
 
   /**
-   * Get the security information for the a resource.
-   *
-   * @see http://swagger.io/specification/#securityDefinitionsObject
-   *
-   * @param \Drupal\rest\RestResourceConfigInterface $resource_config
-   * @param $method
+   * Function getSwaggerDataTypesbyDrupalTypes().
    *
    * @return array
+   *  Get swagger data type by drupal data type.
    */
-  protected function getSecurity(RestResourceConfigInterface $resource_config, $method) {
-    $security = [];
-    foreach ($resource_config->getAuthenticationProviders($method) as $auth) {
-      switch ($auth) {
-        case 'basic_auth':
-          $security['basic_auth'] = [
-            'type' => 'basic',
-          ];
+  function getSwaggerDataTypesbyDrupalTypes($drupal_type, $drupal_size = '', $drupal_name) {
+    $swagger_type = '';
+    $swagger_format = '';
+    $ds_data_types = $this->getDrupalSwaggerDataTypes();
+    if (isset($ds_data_types[$drupal_type])) {
+      $swagger_type = $ds_data_types[$drupal_type]['type'];
+      if ($drupal_size == '') {
+        $swagger_format = $ds_data_types[$drupal_type]['default_format'];
+      } 
+      else {
+        foreach($ds_data_types[$drupal_type]['formats'] as $key => $value) {
+          if ($drupal_size == $key) {
+            $swagger_format = $value;
+          }
+        }
       }
     }
-    // @todo Handle tokens that need to be set in headers.
-    return $security;
+    if ($drupal_type == 'float' && $drupal_size == 'big') {
+      $swagger_type = 'number';
+      $swagger_format = 'double';
+    }
+    if ($drupal_type == 'int' && $drupal_size == 'tiny') {
+      $swagger_type = 'boolean';
+      $swagger_format = '';
+    }
+    if ($drupal_type == 'text' && $drupal_size == 'tiny') {
+      $swagger_type = 'string';
+      $swagger_format = 'binary';
+    }
+    $date_types = ['changed', 'created'];
+    if (in_array($drupal_name, $date_types)) {
+      $swagger_type = 'string';
+      $swagger_format = 'date-time';
+    }
+    if ($swagger_type == '') {
+      $swagger_type = 'string';
+    }
+    return [
+      'type' => $swagger_type,
+      'format' => $swagger_format
+    ];
+  }
+
+  /**
+   * Function getDrupalSwaggerDataTypes().
+   *
+   * @return array
+   *  Get special array with drupal and swagger datatypes.
+   */
+  private function getDrupalSwaggerDataTypes() {
+    return [
+      'serial' => [
+        'type' => 'integer',
+        'default_format' => 'int32',
+        'formats' => [
+          'tiny' => 'int32',
+          'small' => 'int32',
+          'medium' => 'int32',
+          'normal' => 'int32',
+          'big' => 'int64',
+        ],
+      ],
+      'int' => [
+        'type' => 'integer',
+        'default_format' => 'int32',
+        'formats' => [
+          'small' => 'int32',
+          'medium' => 'int32',
+          'normal' => 'int32',
+          'big' => 'int64',
+        ],
+      ],
+      'float' => [
+        'type' => 'number',
+        'default_format' => 'float',
+        'formats' => [
+          'tiny' => 'float',
+          'small' => 'float',
+          'medium' => 'float',
+          'normal' => 'float',
+        ],
+      ],
+      'numeric' => [
+        'type' => 'integer',
+        'default_format' => 'int64',
+        'formats' => [
+          'normal' => 'int64',
+        ],
+      ],
+      'varchar' => [
+        'type' => 'string',
+        'default_format' => '',
+        'formats' => [
+          'normal' => '',
+        ],
+      ],
+      'varchar_ascii' => [
+        'type' => 'string',
+        'default_format' => '',
+        'formats' => [
+          'normal' => '',
+        ],
+      ],
+      'char' => [
+      'type' => 'string',
+        'default_format' => '',
+        'formats' => [
+          'normal' => '',
+        ],
+      ],
+      'text' => [
+        'type' => 'string',
+        'default_format' => '',
+        'formats' => [
+          'tiny' => '',
+          'small' => '',
+          'medium' => '',
+          'normal' => '',
+        ],
+      ],
+    ];
   }
 
 }

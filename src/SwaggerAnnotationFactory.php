@@ -40,14 +40,16 @@ class SwaggerAnnotationFactory {
   }
 
   public function getSwaggerRoot() {
+    $resources = \Drupal::service('swagger.annotation.resources');
     $swagger_root = [
       'swagger' => $this->config->get('swagger_swagger_version'),
       'schemes' => $this->config->get('swagger_swagger_schemes'),
       'consumes' => $this->config->get('swagger_swagger_consumes'),
       'produces' => $this->config->get('swagger_swagger_produces'),
+      //'paths' => $resources->getPaths(),
     ];
     $swagger = new Swagger($swagger_root);
-    $swagger->validate();
+    //$swagger->validate();
     return $swagger;
   }
 

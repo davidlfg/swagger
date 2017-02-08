@@ -33,7 +33,7 @@ services:
 
   swagger.analysis.factory:
     class: Drupal\swagger\SwaggerAnalysisFactory
-    arguments: ['@swagger.annotation.info', '@swagger.annotation.root']
+    arguments: ['@swagger.annotation.info', '@swagger.annotation.root', '@swagger.annotation.resources']
     
   swagger.analysis.get:
     class: \Swagger\Analysis
