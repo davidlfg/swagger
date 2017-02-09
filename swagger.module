@@ -26,9 +26,9 @@ function swagger_help($route_name, RouteMatchInterface $route_match) {
  * Implements hook_theme().
  */
 function swagger_theme() {
-  return array(
-    'swagger_ui' => array(
+  return [
+    'swagger_ui' => [
       'render element' => 'elements',
-    ),
-  );
+    ],
+  ];
 }

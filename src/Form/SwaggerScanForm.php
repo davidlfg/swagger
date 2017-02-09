@@ -23,52 +23,52 @@ class SwaggerScanForm extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('swagger.settings');
-    $form['swagger_scan_folder'] = array(
+    $form['swagger_scan_folder'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Scan folder'),
       '#description' => $this->t('A local folder system path where swagger will scan the code. Example: modules/custom'),
-      '#attributes' => array(
+      '#attributes' => [
         'placeholder' => $this->t('modules/custom'),
         'autofocus' => TRUE,
-      ),
+      ],
       '#default_value' => $config->get('swagger_scan_folder') ?: 'modules/custom',
       '#required' => TRUE,
-    );
-    $form['swagger_scan_output'] = array(
+    ];
+    $form['swagger_scan_output'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Scan output'),
       '#description' => $this->t('A local file system path where swagger.json will be stored. Example: sites/default/files'),
       '#field_suffix' => '/swagger.json',
-      '#attributes' => array(
+      '#attributes' => [
         'placeholder' => $this->t('sites/default/files/swagger'),
         'autofocus' => TRUE,
-      ),
+      ],
       '#default_value' => $config->get('swagger_scan_output') ?: 'sites/default/files/swagger',
       '#required' => TRUE,
-    );
-    $form['swagger_ui_path'] = array(
+    ];
+    $form['swagger_ui_path'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Swagger UI path'),
       '#description' => $this->t('Define a path to Swagger UI Page. Example: /swagger/swagger-ui. After submitting "clear cache"'),
-      '#attributes' => array(
+      '#attributes' => [
         'placeholder' => $this->t('/swagger/swagger-ui'),
         'autofocus' => TRUE,
-      ),
+      ],
       '#default_value' => $config->get('swagger_ui_path') ?: '/swagger/swagger-ui',
       '#required' => TRUE,
-    );
-    $form['submit'] = array(
+    ];
+    $form['submit'] = [
       '#type' => 'submit',
       '#value' => t('Save configuration and Scan code'),
-    );
+    ];
     require_once 'core/includes/install.inc';
     if (drupal_verify_install_file('./' . $config->get('swagger_scan_output') . '/swagger.json', FILE_EXIST)) {
       $url = Url::fromUri(file_create_url($config->get('swagger_scan_output') . '/swagger.json'));
-      $link_options = array(
-        'attributes' => array(
-          'target' => array('_blank'),
-        ),
-      );
+      $link_options = [
+        'attributes' => [
+          'target' => ['_blank'],
+        ],
+      ];
       $url->setOptions($link_options);
       $swagger_json_link = \Drupal::l(t('/swagger.json'), $url);
       $form['swagger_scan_output']['#field_suffix'] = $swagger_json_link;

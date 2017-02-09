@@ -3,9 +3,7 @@
 namespace Drupal\swagger;
 
 use Swagger\Analysis;
-use Swagger\Annotations\Info;
-use Swagger\Annotations\Swagger;
-use Swagger\Processors\MergeIntoSwagger;
+use \JsonSerializable;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
 
@@ -27,13 +25,22 @@ class SwaggerScan implements SwaggerScanInterface {
    * @var \Drupal\Core\Logger\LoggerChannelInterface
    */
   private $logger;
+  
+  private $swaggerInfoAnnotation;
+  
+  private $swaggerRootAnnotation;
+  
+  private $swaggerAnalysis;
 
   /**
    * Class constructor.
    */
-  public function __construct(ConfigFactoryInterface $config, LoggerChannelInterface $logger) {
+  public function __construct(ConfigFactoryInterface $config, LoggerChannelInterface $logger, JsonSerializable $info_annotation, JsonSerializable $root_annotation, Analysis $analysis) {
     $this->config = $config->getEditable('swagger.settings');
     $this->logger = $logger;
+    $this->swaggerInfoAnnotation = $info_annotation;
+    $this->swaggerRootAnnotation = $root_annotation;
+    $this->swaggerAnalysis = $analysis; 
   }
 
   /**
@@ -53,7 +60,7 @@ class SwaggerScan implements SwaggerScanInterface {
     }
     // Prepare the basic structure.
     $analysis = $this->swaggerPrepareBase($base_url);
-    $swagger = \Swagger\scan($scan_folder, array('analysis' => $analysis));
+    $swagger = \Swagger\scan($scan_folder, ['analysis' => $analysis]);
     // Output report.
     $this->swaggerOutputReport($swagger);
     // Save fix.
@@ -71,16 +78,10 @@ class SwaggerScan implements SwaggerScanInterface {
   protected function swaggerPrepareBase($base_url) {
     // Checking the swagger format files.
     $this->swaggerCheckJsonFormat();
-    // Scan custom swagger processor.
-    $swagger_info_object = $this->swaggerInfoObject();
-    // Get object swagger.
-    $swagger = new Swagger($this->swaggerSwaggerObject($swagger_info_object, $base_url));
-    $analysis = new Analysis([$swagger]);
-    $analysis->process([
-      new MergeIntoSwagger(),
-    ]);
-    $analysis->validate();
-    return $analysis;
+    $this->swaggerAnalysis->swagger->basePath = \Drupal::request()->getBasePath();
+    $this->swaggerAnalysis->swagger->host = preg_replace('/^http(s)?:\/\//i', '', $base_url);
+    //$this->swaggerAnalysis->validate();
+    return $this->swaggerAnalysis;
   }
 
   /**
@@ -153,55 +154,6 @@ class SwaggerScan implements SwaggerScanInterface {
       drupal_set_message(t('---  SWAGGER WARNING ---'), 'error');
       drupal_set_message('[' . $type . '] ' . $entry . PHP_EOL, 'error');
     };
-  }
-
-  /**
-   * Function swaggerInfoObject().
-   *
-   * @return array
-   *   The swagger info to the swagger file.
-   */
-  protected function swaggerInfoObject() {
-    $info = [
-      "title" => $this->config->get('swagger_info_title'),
-      "description" => $this->config->get('swagger_info_description'),
-      "termsOfService" => $this->config->get('swagger_info_terms_service'),
-      "version" => $this->config->get('swagger_info_version'),
-    ];
-    if ($this->config->get('contact_needs')) {
-      $info["contact"] = [
-        "name" => $this->config->get('swagger_info_contact_name'),
-        "url" => $this->config->get('swagger_info_contact_url'),
-        "email" => $this->config->get('swagger_info_contact_email'),
-      ];
-    }
-    if ($this->config->get('license_needs')) {
-      $info["license"] = [
-        "name" => $this->config->get('swagger_info_license_name'),
-        "url" => $this->config->get('swagger_info_license_url'),
-      ];
-    }
-    return $info;
-  }
-
-  /**
-   * Function swaggerSwaggerObject().
-   *
-   * @return array
-   *   The swagger object to the swagger file.
-   */
-  protected function swaggerSwaggerObject($swagger_info_object, $base_url) {
-    $swagger_object = array();
-    $swagger_object = [
-      'swagger' => $this->config->get('swagger_swagger_version'),
-      'info' => new Info($swagger_info_object),
-      'host' => preg_replace('/^http(s)?:\/\//i', '', $base_url),
-      'basePath' => \Drupal::request()->getBasePath(),
-      'schemes' => $this->config->get('swagger_swagger_schemes'),
-      'consumes' => $this->config->get('swagger_swagger_consumes'),
-      'produces' => $this->config->get('swagger_swagger_produces'),
-    ];
-    return $swagger_object;
   }
 
 }
