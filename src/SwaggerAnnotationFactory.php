@@ -5,6 +5,7 @@ namespace Drupal\swagger;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Swagger\Annotations\Info;
 use Swagger\Annotations\Swagger;
+
 /**
 * Defines a factory for SwaggerAnnotationFactory.
 */
@@ -15,7 +16,10 @@ class SwaggerAnnotationFactory {
   public function __construct(ConfigFactoryInterface $config) {
     $this->config = $config->getEditable('swagger.settings');
   }
-  
+
+  /**
+   * {@inheritdoc}
+   */
   public function getSwaggerInfo() {
     $swagger_info = [
       "title" => $this->config->get('swagger_info_title'),
@@ -39,6 +43,9 @@ class SwaggerAnnotationFactory {
     return new Info($swagger_info);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getSwaggerRoot() {
     $resources = \Drupal::service('swagger.annotation.resources');
     $swagger_root = [
@@ -46,10 +53,9 @@ class SwaggerAnnotationFactory {
       'schemes' => $this->config->get('swagger_swagger_schemes'),
       'consumes' => $this->config->get('swagger_swagger_consumes'),
       'produces' => $this->config->get('swagger_swagger_produces'),
-      //'paths' => $resources->getPaths(),
     ];
     $swagger = new Swagger($swagger_root);
-    //$swagger->validate();
+    $swagger->validate();
     return $swagger;
   }
 

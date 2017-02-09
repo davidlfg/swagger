@@ -7,10 +7,6 @@ use \JsonSerializable;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
 
-//use Drupal\Core\Entity\EntityTypeManagerInterface;
-//use Drupal\rest\Plugin\Type\ResourcePluginManager;
-
-
 /**
  * Provides a SwaggerScan plugin implementation.
  */

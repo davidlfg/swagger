@@ -10,9 +10,7 @@ use Drupal\Core\Field\FieldDefinitionInterface;
 use Symfony\Component\Routing\Route;
 use Drupal\rest\Plugin\rest\resource\EntityResource;
 use Drupal\rest\RestResourceConfigInterface;
-
 use Swagger\Annotations;
-
 
 /**
  * Defines a factory for logging channels.
