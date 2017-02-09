@@ -9,7 +9,7 @@
  * Implements hook_drush_command().
  */
 function swagger_drush_command() {
-  $items = array();
+  $items = [];
   $items['swagger-scan'] = [
     'description' => 'Run the scan code.',
     'arguments' => [

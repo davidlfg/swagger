@@ -64,7 +64,7 @@ class SwaggerScan implements SwaggerScanInterface {
     }
     // Prepare the basic structure.
     $analysis = $this->swaggerPrepareBase($base_url);
-    $swagger = \Swagger\scan($scan_folder, array('analysis' => $analysis));
+    $swagger = \Swagger\scan($scan_folder, ['analysis' => $analysis]);
     // Output report.
     $this->swaggerOutputReport($swagger);
     // Save fix.

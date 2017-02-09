@@ -197,7 +197,7 @@ class SwaggerResourcesFactory {
       'description' => $field->getDescription()
     ];
     $drupal_schema = $field->getSchema();
-    $drupal_type = $drupal_schema['columns']['value']['type'];
+    $drupal_type = isset($drupal_schema['columns']['value']['type']) ? $drupal_schema['columns']['value']['type'] : '';
     $drupal_size = isset($drupal_schema['columns']['value']['size']) ? $drupal_schema['columns']['value']['size'] : '';
     $swagger_types = $this->getSwaggerDataTypesbyDrupalTypes($drupal_type, $drupal_size, $field->getName());
     $parameter['type'] = $swagger_types['type'];
