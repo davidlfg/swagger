@@ -55,7 +55,6 @@ class SwaggerAnnotationFactory {
       'produces' => $this->config->get('swagger_swagger_produces'),
     ];
     $swagger = new Swagger($swagger_root);
-    $swagger->validate();
     return $swagger;
   }
 
