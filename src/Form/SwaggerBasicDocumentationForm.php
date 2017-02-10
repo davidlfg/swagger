@@ -217,9 +217,7 @@ class SwaggerBasicDocumentationForm extends ConfigFormBase implements FormInterf
   public function getTranferProtocol($key = NULL) {
     return [
       'http' => 'http',
-      'https' => 'https',
-      'ws' => 'ws',
-      'wss' => 'wss',
+      'https' => 'https'
     ];
   }
 
@@ -231,17 +229,8 @@ class SwaggerBasicDocumentationForm extends ConfigFormBase implements FormInterf
    */
   public function getMineTypeDefinitions() {
     return [
-      'text/plain; charset=utf-8' => 'text/plain; charset=utf-8',
       'application/json' => 'application/json',
-      'application/xml' => 'application/xml',
-      'application/vnd.github+json' => 'application/vnd.github+json',
-      'application/vnd.github.v3+json' => 'application/vnd.github.v3+json',
-      'application/vnd.github.v3.raw+json' => 'application/vnd.github.v3.raw+json',
-      'application/vnd.github.v3.text+json' => 'application/vnd.github.v3.text+json',
-      'application/vnd.github.v3.html+json' => 'application/vnd.github.v3.text+json',
-      'application/vnd.github.v3.full+json' => 'application/vnd.github.v3.full+json',
-      'application/vnd.github.v3.diff' => 'application/vnd.github.v3.diff',
-      'application/vnd.github.v3.patch' => 'application/vnd.github.v3.patch',
+      'application/xml' => 'application/xml'
     ];
   }
 
