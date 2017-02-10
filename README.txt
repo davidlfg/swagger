@@ -18,6 +18,13 @@ REQUIREMENTS
 * Swagger-php
 
 
+FEATURES
+--------
+
+* Create the annotations from custom "swagger annotations"
+* Create the annotations from rest resources
+
+
 INSTALLATION
 ------------
 
